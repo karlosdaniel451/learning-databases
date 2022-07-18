@@ -26,3 +26,30 @@ INNER JOIN cd.members as members_2
 ORDER BY cd.members.surname, cd.members.firstname;
 
 
+--- Produce a list of all members, along with their recommender
+SELECT cd.members.firstname, cd.members.surname, members_who_recommended.firstname, members_who_recommended.surname
+FROM cd.members
+LEFT JOIN cd.members as members_who_recommended
+    ON cd.members.recommendedby = members_who_recommended.memid
+ORDER BY cd.members.surname, cd.members.firstname
+--- It has a left join (outer) because it is required that all members must be showed, even those not recommended by anyone.
+
+
+--- Produce a list of all members who have used a tennis court
+SELECT DISTINCT cd.members.firstname || ' ' || cd.members.surname AS member, cd.facilities.name AS facility
+FROM cd.members
+INNER JOIN cd.bookings
+    ON cd.members.memid = cd.bookings.memid
+INNER JOIN cd.facilities
+    ON cd.bookings.facid = cd.facilities.facid
+WHERE name LIKE 'Tennis Court %'
+ORDER BY member ASC, facility ASC
+
+
+--- Produce a list of costly bookings
+--- ...
+
+
+--- Produce a list of all members, along with their recommender, using no joins.
+--- ...
+
