@@ -47,9 +47,30 @@ ORDER BY member ASC, facility ASC
 
 
 --- Produce a list of costly bookings
---- ...
-
+SELECT cd.members.firstname || ' ' || cd.members.surname AS member, cd.facilities.name AS facility,
+    CASE
+        WHEN cd.members.memid = 0 THEN
+            cd.bookings.slots * cd.facilities.guestcost
+        ELSE
+            cd.bookings.slots * cd.facilities.membercost
+    END AS cost
+FROM cd.members
+INNER JOIN cd.bookings
+    ON cd.members.memid = cd.bookings.memid
+INNER JOIN cd.facilities
+    ON cd.bookings.facid = cd.facilities.facid
+WHERE cd.bookings.starttime BETWEEN '2012-09-14 00:00:00.000000'
+                            AND '2012-09-14 23:59:59.999999'
+    AND (cd.members.memid = 0 AND cd.bookings.slots * cd.facilities.guestcost > 30
+         OR cd.members.memid != 0 AND cd.bookings.slots * cd.facilities.membercost > 30)
+ORDER BY cost DESC;
 
 --- Produce a list of all members, along with their recommender, using no joins.
---- ...
+SELECT DISTINCT cd.members.firstname || ' ' || cd.members.surname AS member,
+    (SELECT recommenders.firstname || ' ' || recommenders.surname AS recommender
+        FROM cd.members AS recommenders
+        WHERE cd.members.recommendedby = recommenders.memid
+    )
+FROM cd.members
+ORDER BY member;
 
