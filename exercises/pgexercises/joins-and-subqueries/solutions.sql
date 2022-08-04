@@ -65,6 +65,7 @@ WHERE cd.bookings.starttime BETWEEN '2012-09-14 00:00:00.000000'
          OR cd.members.memid != 0 AND cd.bookings.slots * cd.facilities.membercost > 30)
 ORDER BY cost DESC;
 
+
 --- Produce a list of all members, along with their recommender, using no joins.
 SELECT DISTINCT cd.members.firstname || ' ' || cd.members.surname AS member,
     (SELECT recommenders.firstname || ' ' || recommenders.surname AS recommender
@@ -73,4 +74,6 @@ SELECT DISTINCT cd.members.firstname || ' ' || cd.members.surname AS member,
     )
 FROM cd.members
 ORDER BY member;
+
+
 

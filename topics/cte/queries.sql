@@ -70,3 +70,92 @@ ORDER BY
 LIMIT 10;
 
 
+/* Retrieve the name and e-mail of the 30 customers who did most
+rentals. */
+WITH cte_rental_count_by_customer AS (
+    SELECT
+        customer_id,
+        COUNT(*) AS rental_count
+    FROM
+        rental
+    GROUP BY
+        customer_id
+)
+SELECT
+    customer.customer_id,
+    customer.first_name || ' ' || customer.last_name AS customer_name,
+    cte_rental_count_by_customer.rental_count
+FROM
+    customer
+INNER JOIN cte_rental_count_by_customer
+    ON customer.customer_id = cte_rental_count_by_customer.customer_id
+ORDER BY
+    cte_rental_count_by_customer.rental_count DESC
+LIMIT 30;
+
+
+/* Retrieve the 30 countries with more rentals. */
+WITH cte_rental_count_by_country AS (
+    SELECT
+        country.country_id,
+        COUNT(*) rental_count
+    FROM
+        rental
+    INNER JOIN customer
+        ON rental.customer_id = customer.customer_id
+    INNER JOIN address
+        ON customer.address_id = address.address_id
+    INNER JOIN city
+        ON address.city_id = city.city_id
+    INNER JOIN country
+        ON city.country_id = country.country_id
+    GROUP BY
+        country.country_id
+)
+SELECT
+    country.country_id,
+    country.country,
+    cte_rental_count_by_country.rental_count
+FROM
+    country
+INNER JOIN cte_rental_count_by_country
+    ON country.country_id = cte_rental_count_by_country.country_id
+ORDER BY
+    cte_rental_count_by_country.rental_count DESC
+LIMIT 30;
+
+
+/* Retrieve the sum of the rents of the 10 countries with the most rents. */
+WITH cte_rental_count_by_country AS (
+    SELECT
+        country.country_id,
+        COUNT(*) rental_count
+    FROM
+        rental
+    INNER JOIN customer
+        ON rental.customer_id = customer.customer_id
+    INNER JOIN address
+        ON customer.address_id = address.address_id
+    INNER JOIN city
+        ON address.city_id = city.city_id
+    INNER JOIN country
+        ON city.country_id = country.country_id
+    GROUP BY
+        country.country_id
+)
+SELECT
+    SUM(cte_rental_count_by_country.rental_count)
+FROM
+    cte_rental_count_by_country
+WHERE
+    cte_rental_count_by_country.country_id IN (
+        SELECT
+            country.country_id
+        FROM
+            country
+        INNER JOIN cte_rental_count_by_country
+            ON country.country_id = cte_rental_count_by_country.country_id
+        ORDER BY
+            cte_rental_count_by_country.rental_count DESC
+        LIMIT 10
+);
