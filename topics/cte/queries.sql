@@ -93,6 +93,24 @@ ORDER BY
     cte_rental_count_by_customer.rental_count DESC
 LIMIT 30;
 
+--- Or:
+SELECT
+    rental.customer_id,
+    (
+        SELECT customer.first_name || ' ' || customer.last_name AS customer_name
+        FROM customer
+        WHERE customer.customer_id = rental.customer_id
+    ),
+    COUNT(*) AS rental_count
+FROM
+    rental
+GROUP BY
+    rental.customer_id
+ORDER BY
+    number_of_rentals DESC
+LIMIT 30;
+
+
 
 /* Retrieve the 30 countries with more rentals. */
 WITH cte_rental_count_by_country AS (
